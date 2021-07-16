@@ -74,11 +74,13 @@ typedef int HMMAPIO;
 
 NAMESPACE_BEGIN(mmapio)
 
+// read/write mode
 enum enum_mmapio_mode {
 	enum_mode_read = 0,
 	enum_mode_write
 };
 
+// get system memory page size
 inline size_t page_size() noexcept
 {
 #ifdef _WIN32	// Windows
@@ -92,11 +94,13 @@ inline size_t page_size() noexcept
 
 static const size_t pagesize = page_size();
 
+// align the offset by pagesize
 inline uint64_t offset_aligned(const uint64_t offset) noexcept
 {
 	return offset / pagesize * pagesize;
 }
 
+// mmapio class
 template<enum_mmapio_mode Emode>
 class mmapio
 {
@@ -151,6 +155,8 @@ public:
 	bool map(const char* path, const uint64_t offset, const uint64_t mapsize);
 	bool map(const HMMAPIO handle, const uint64_t offset, const uint64_t mapsize);
 	void unmap();
+
+	void flush();
 
 private:
 	HMMAPIO open_file(const char* path, const enum_mmapio_mode mode);
@@ -220,6 +226,39 @@ void mmapio<Emode>::unmap()
 	{
 		munmap(mapping_start(), p_mapped_size);
 	}
+#endif
+
+	p_data = nullptr;
+	p_length = 0;
+	p_mapped_size = 0;
+	p_file = invalid_handle;
+#ifdef _WIN32
+	p_filemap = invalid_handle;
+#endif
+}
+
+template<enum_mmapio_mode Emode>
+void mmapio<Emode>::flush()
+{
+	if (!is_open())
+	{
+		return;
+	}
+
+	if (data())
+	{
+#ifdef _WIN32
+		if (FlushViewOfFile(mapping_start(), p_mapped_size) == FALSE || FlushFileBuffers(p_file) == FALSE)
+#else
+		if (msync(mapping_start(), p_mapped_size, MS_SYNC) != 0)
+#endif
+		{
+			return;
+		}
+	}
+
+#ifdef _WIN32
+	FlushFileBuffers(p_file);
 #endif
 }
 

@@ -5,7 +5,7 @@
 
 #include "../Include/mmapio.hpp"
 
-mmapio::mmapio<mmapio::enum_mode_read> io;
+mmapio::mmapio<mmapio::enum_mode_write> io;
 
 int main()
 {
@@ -16,6 +16,11 @@ int main()
 		std::cout << io.data()[i];
 	}
 	std::cout << std::endl;
+
+	uint8_t* data = const_cast<uint8_t*>(io.data());
+	*data = '2';
+
+	io.unmap();
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
