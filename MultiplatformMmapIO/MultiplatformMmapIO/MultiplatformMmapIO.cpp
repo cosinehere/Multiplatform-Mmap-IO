@@ -5,7 +5,7 @@
 
 mmapio::mmapio<mmapio::enum_mode_write> io;
 
-mio::mio<mio::enum_mode_write> miofile;
+mio::mio<mio::enum_mode_read> miofile;
 
 int main()
 {
@@ -31,8 +31,6 @@ int main()
 #else
 	miofile.open_file("test.txt");
 #endif
-	char buffer[100] = "126456";
-	size_t write = miofile.write_file(buffer, 5);
-	std::cout << write << std::endl;
+	std::cout << miofile.file_size() << std::endl;
 	miofile.close_file();
 }
