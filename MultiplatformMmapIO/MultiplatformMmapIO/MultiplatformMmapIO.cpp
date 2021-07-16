@@ -29,7 +29,11 @@ int main()
 // 
 // 	io.unmap();
 
+#ifdef _WIN32
 	miofile.open_file("e:\\test.txt");
+#else
+	miofile.open_file("test.txt");
+#endif
 	char buffer[100] = "126456";
 	size_t write = miofile.write_file(buffer, 5);
 	std::cout << write << std::endl;

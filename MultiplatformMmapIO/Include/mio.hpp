@@ -145,7 +145,7 @@ bool mio<Emode>::open_file(const char* path)
 		0);
 #else
 	handle = open(path,
-		(mode == enum_mode_read) ? O_RDONLY : O_RDWR);
+		(Emode == enum_mode_read) ? O_RDONLY : O_RDWR);
 #endif	// _WIN32
 
 	p_file = handle;
