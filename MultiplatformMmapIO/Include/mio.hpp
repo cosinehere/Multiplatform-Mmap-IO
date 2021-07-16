@@ -55,7 +55,7 @@ typedef int HMIO;
 #if !defined(NAMESPACE_BEGIN)  && !defined(NAMESPACE_END)
 #define NAMESPACE_BEGIN(name) namespace name {
 #define NAMESPACE_END }
-#endif
+#endif	// !defined(NAMESPACE_BEGIN)  && !defined(NAMESPACE_END)
 
 //////////////////////////////////////////////////////////////////////////
 // C++11 support
@@ -67,14 +67,14 @@ typedef int HMIO;
 #ifndef CXX11_NOT_SUPPORT
 #define CXX11_NOT_SUPPORT
 #endif	// CXX11_NOT_SUPPORT
-#endif
+#endif	// __cplusplus<=199711L
 
 #ifdef CXX11_NOT_SUPPORT
 #define nullptr NULL
 #define constexpr const
 #define noexcept throw()
 #define override
-#endif
+#endif	// CXX11_NOT_SUPPORT
 
 NAMESPACE_BEGIN(mio)
 
@@ -106,6 +106,8 @@ public:
 
 	bool open_file(const char* path);
 	void close_file();
+
+	size_t file_size();
 
 	size_t read_file(void* buffer, size_t readnum);
 	size_t write_file(const void* buffer, size_t writenum);
@@ -167,6 +169,31 @@ void mio<Emode>::close_file()
 #endif	// _WIN32
 
 	p_file = invalid_handle;
+}
+
+template<enum_mio_mode Emode>
+size_t mio<Emode>::file_size()
+{
+	if (!is_open())
+	{
+		return 0;
+	}
+
+#ifdef _WIN32
+	LARGE_INTEGER size;
+	if (GetFileSizeEx(p_file, &size) == FALSE)
+	{
+		return 0;
+	}
+	return static_cast<size_t>(size.QuadPart);
+#else
+	struct stat st;
+	if (fstat(p_file, &st) == -1)
+	{
+		return 0;
+	}
+	return static_cast<size_t>(st.st_size);
+#endif
 }
 
 template<enum_mio_mode Emode>
