@@ -23,5 +23,8 @@
     <ClInclude Include="..\Include\mmapio.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\mio.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

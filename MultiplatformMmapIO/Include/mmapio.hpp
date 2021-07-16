@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _MMAPIO_H_
-#define _MMAPIO_H_
+#ifndef _MMAPIO_HPP_
+#define _MMAPIO_HPP_
 
 #include <cstddef>
 #include <cstring>
@@ -45,7 +45,9 @@ typedef unsigned __int64 uint64_t;
 //////////////////////////////////////////////////////////////////////////
 #ifdef _WIN32	// Windows
 typedef HANDLE HMMAPIO;
+#ifndef invalid_handle
 #define invalid_handle INVALID_HANDLE_VALUE
+#endif	// invalid_handle
 #else	// Unix
 #define invalid_handle -1
 typedef int HMMAPIO;
@@ -63,7 +65,9 @@ typedef int HMMAPIO;
 	(!defined(_MSC_VER) || _MSC_VER < 1900) && \
 	(!defined(__GNUC__) || \
 	(__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__ < 40603))
+#ifndef CXX11_NOT_SUPPORT
 #define CXX11_NOT_SUPPORT
+#endif	// CXX11_NOT_SUPPORT
 #endif
 
 #ifdef CXX11_NOT_SUPPORT
@@ -116,19 +120,15 @@ private:
 #endif
 
 public:
-	mmapio()
-	{
-		p_data = nullptr;
-		p_length = 0;
-		p_mapped_size = 0;
+	mmapio();
+	~mmapio();
 
-		p_file = invalid_handle;
-#ifdef _WIN32
-		p_filemap = invalid_handle;
-#endif	// _WIN32
-	}
-
-	~mmapio() {}
+#ifndef CXX11_NOT_SUPPORT
+	mmapio(const mmapio&) = delete;
+	mmapio(const mmapio&&) = delete;
+	mmapio& operator=(const mmapio&) = delete;
+	mmapio& operator=(const mmapio&&) = delete;
+#endif
 
 	bool is_open() const { return p_file != invalid_handle; }
 	bool is_mapped() const
@@ -139,13 +139,6 @@ public:
 		return is_open();
 #endif	// _WIN32
 	}
-
-#ifndef CXX11_NOT_SUPPORT
-	mmapio(const mmapio&) = delete;
-	mmapio(const mmapio&&) = delete;
-	mmapio& operator=(const mmapio&) = delete;
-	mmapio& operator=(const mmapio&&) = delete;
-#endif
 
 	uint64_t size() const noexcept { return p_length; }
 	uint64_t mapped_size() const noexcept { return p_mapped_size; }
@@ -170,6 +163,25 @@ private:
 
 	const uint8_t* mapping_start() { return (!data()) ? nullptr : data() - (p_mapped_size - p_length); }
 };
+
+template<enum_mmapio_mode Emode>
+mmapio<Emode>::mmapio()
+{
+	p_data = nullptr;
+	p_length = 0;
+	p_mapped_size = 0;
+
+	p_file = invalid_handle;
+#ifdef _WIN32
+	p_filemap = invalid_handle;
+#endif	// _WIN32
+}
+
+template<enum_mmapio_mode Emode>
+mmapio<Emode>::~mmapio()
+{
+	// TODO
+}
 
 template<enum_mmapio_mode Emode>
 bool mmapio<Emode>::map(const char* path, const uint64_t offset, const uint64_t mapsize)
@@ -283,7 +295,7 @@ HMMAPIO mmapio<Emode>::open_file(const char* path, const enum_mmapio_mode mode)
 #else
 	handle = open(path,
 		(mode == enum_mode_read) ? O_RDONLY : O_RDWR);
-#endif
+#endif	// _WIN32
 	return handle;
 }
 
@@ -304,7 +316,7 @@ inline uint64_t mmapio<Emode>::file_size(const HMMAPIO handle)
 		return 0;
 	}
 	return st.st_size;
-#endif
+#endif	// _WIN32
 }
 
 template<enum_mmapio_mode Emode>
@@ -362,4 +374,4 @@ bool mmapio<Emode>::memory_map(const HMMAPIO handle, const uint64_t offset, cons
 
 NAMESPACE_END
 
-#endif	// ifndef _MMAPIO_H_
+#endif	// _MMAPIO_HPP_
