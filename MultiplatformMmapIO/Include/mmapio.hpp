@@ -37,6 +37,7 @@ typedef unsigned __int64 uint64_t;
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 #endif	// _WIN32
 
 //////////////////////////////////////////////////////////////////////////
@@ -224,7 +225,7 @@ void mmapio<Emode>::unmap()
 #else
 	if (data())
 	{
-		munmap(mapping_start(), p_mapped_size);
+		munmap(const_cast<uint8_t*>(mapping_start()), p_mapped_size);
 	}
 #endif
 

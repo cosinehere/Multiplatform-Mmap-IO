@@ -13,7 +13,7 @@ int main()
 #ifdef _WIN32
 	std::cout << io.map("e:\\test.txt", 0, 9) << std::endl;
 #else
-	std::cout << io.map("~\\test.txt", 0, 9) << std::endl;
+	std::cout << io.map("test.txt", 0, 10) << std::endl;
 #endif
 	for (uint64_t i = 0; i < io.size(); ++i)
 	{
