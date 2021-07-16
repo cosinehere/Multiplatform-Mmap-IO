@@ -184,7 +184,7 @@ size_t mio<Emode>::read_file(void* buffer, size_t readnum)
 
 #ifdef _WIN32
 	DWORD dwRead = 0;
-	if(!ReadFile(p_file, buffer, readnum, &dwRead, nullptr))
+	if (!ReadFile(p_file, buffer, readnum, &dwRead, nullptr))
 	{
 		return 0;
 	}
