@@ -40,24 +40,6 @@ typedef unsigned __int64 uint64_t;
 #endif	// _WIN32
 
 //////////////////////////////////////////////////////////////////////////
-// typedef
-//////////////////////////////////////////////////////////////////////////
-#ifdef _WIN32	// Windows
-typedef HANDLE HMIO;
-#ifndef invalid_handle
-#define invalid_handle INVALID_HANDLE_VALUE
-#endif	// invalid_handle
-#else	// Unix
-#define invalid_handle -1
-typedef int HMIO;
-#endif	// _WIN32
-
-#if !defined(NAMESPACE_BEGIN)  && !defined(NAMESPACE_END)
-#define NAMESPACE_BEGIN(name) namespace name {
-#define NAMESPACE_END }
-#endif	// !defined(NAMESPACE_BEGIN)  && !defined(NAMESPACE_END)
-
-//////////////////////////////////////////////////////////////////////////
 // C++11 support
 //////////////////////////////////////////////////////////////////////////
 #if __cplusplus <= 199711L && \
@@ -76,7 +58,28 @@ typedef int HMIO;
 #define override
 #endif	// CXX11_NOT_SUPPORT
 
+//////////////////////////////////////////////////////////////////////////
+// namespace define
+//////////////////////////////////////////////////////////////////////////
+#if !defined(NAMESPACE_BEGIN)  && !defined(NAMESPACE_END)
+#define NAMESPACE_BEGIN(name) namespace name {
+#define NAMESPACE_END }
+#endif	// !defined(NAMESPACE_BEGIN)  && !defined(NAMESPACE_END)
+
 NAMESPACE_BEGIN(mio)
+
+//////////////////////////////////////////////////////////////////////////
+// mio typedef
+//////////////////////////////////////////////////////////////////////////
+#ifdef _WIN32	// Windows
+typedef HANDLE HMIO;
+#ifndef invalid_handle
+#define invalid_handle INVALID_HANDLE_VALUE
+#endif	// invalid_handle
+#else	// Unix
+#define invalid_handle -1
+typedef int HMIO;
+#endif	// _WIN32
 
 // read/write mode
 enum enum_mio_mode {

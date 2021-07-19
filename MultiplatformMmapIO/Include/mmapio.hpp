@@ -41,24 +41,6 @@ typedef unsigned __int64 uint64_t;
 #endif	// _WIN32
 
 //////////////////////////////////////////////////////////////////////////
-// typedef
-//////////////////////////////////////////////////////////////////////////
-#ifdef _WIN32	// Windows
-typedef HANDLE HMMAPIO;
-#ifndef invalid_handle
-#define invalid_handle INVALID_HANDLE_VALUE
-#endif	// invalid_handle
-#else	// Unix
-#define invalid_handle -1
-typedef int HMMAPIO;
-#endif	// _WIN32
-
-#if !defined(NAMESPACE_BEGIN)  && !defined(NAMESPACE_END)
-#define NAMESPACE_BEGIN(name) namespace name {
-#define NAMESPACE_END }
-#endif
-
-//////////////////////////////////////////////////////////////////////////
 // C++11 support
 //////////////////////////////////////////////////////////////////////////
 #if __cplusplus <= 199711L && \
@@ -77,7 +59,28 @@ typedef int HMMAPIO;
 #define override
 #endif
 
+//////////////////////////////////////////////////////////////////////////
+// namespace define
+//////////////////////////////////////////////////////////////////////////
+#if !defined(NAMESPACE_BEGIN)  && !defined(NAMESPACE_END)
+#define NAMESPACE_BEGIN(name) namespace name {
+#define NAMESPACE_END }
+#endif	// !defined(NAMESPACE_BEGIN)  && !defined(NAMESPACE_END)
+
 NAMESPACE_BEGIN(mmapio)
+
+//////////////////////////////////////////////////////////////////////////
+// mmapio typedef
+//////////////////////////////////////////////////////////////////////////
+#ifdef _WIN32	// Windows
+typedef HANDLE HMMAPIO;
+#ifndef invalid_handle
+#define invalid_handle INVALID_HANDLE_VALUE
+#endif	// invalid_handle
+#else	// Unix
+#define invalid_handle -1
+typedef int HMMAPIO;
+#endif	// _WIN32
 
 // read/write mode
 enum enum_mmapio_mode {
@@ -361,7 +364,7 @@ bool mmapio<Emode>::memory_map(const HMMAPIO handle, const uint64_t offset, cons
 	{
 		return false;
 	}
-#endif
+#endif	// _WIN32
 
 	p_data = mapview + offset - alignedoffset;
 	p_length = mapsize;
