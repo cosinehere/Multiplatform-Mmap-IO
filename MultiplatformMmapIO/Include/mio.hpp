@@ -107,6 +107,7 @@ public:
 
 	bool is_open() noexcept { return p_file != invalid_handle; }
 
+	bool create_file(const char* path);
 	bool open_file(const char* path);
 	void close_file();
 
@@ -129,6 +130,32 @@ mio<Emode>::~mio()
 	{
 		close_file();
 	}
+}
+
+template<enum_mio_mode Emode>
+bool mio<Emode>::create_file(const char* path)
+{
+	if (path_empty(path))
+	{
+		return false;
+	}
+
+	HMIO handle = invalid_handle;
+#ifdef _WIN32
+	handle = CreateFile(path,
+		(Emode == enum_mode_read) ? GENERIC_READ : GENERIC_READ | GENERIC_WRITE,
+		FILE_SHARE_READ | FILE_SHARE_WRITE,
+		0,
+		CREATE_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL,
+		0);
+#else
+	handle = open(path,
+		(Emode == enum_mode_read) ? O_RDONLY | O_CREAT : O_RDWR | O_CREAT);
+#endif	// _WIN32
+
+	p_file = handle;
+	return handle != invalid_handle;
 }
 
 template<enum_mio_mode Emode>
