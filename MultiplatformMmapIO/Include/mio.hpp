@@ -151,7 +151,8 @@ bool mio<Emode>::create_file(const char* path)
 		0);
 #else
 	handle = open(path,
-		(Emode == enum_mode_read) ? O_RDONLY | O_CREAT : O_RDWR | O_CREAT);
+		(Emode == enum_mode_read) ? O_RDONLY | O_CREAT : O_RDWR | O_CREAT,
+		S_IRUSR | S_IWUSR);
 #endif	// _WIN32
 
 	p_file = handle;
