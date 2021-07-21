@@ -87,6 +87,12 @@ enum enum_mio_mode {
 	enum_mode_write
 };
 
+enum enum_mio_pos {
+	enum_pos_set = 0,
+	enum_pos_cur,
+	enum_pos_end
+};
+
 template<enum_mio_mode Emode>
 class mio
 {
@@ -115,6 +121,8 @@ public:
 
 	size_t read_file(void* buffer, size_t readnum);
 	size_t write_file(const void* buffer, size_t writenum);
+
+	size_t seek_file(enum_mio_pos pos, size_t offset);
 };
 
 template<enum_mio_mode Emode>
@@ -276,6 +284,46 @@ size_t mio<Emode>::write_file(const void* buffer, size_t writenum)
 	return write(p_file, buffer, writenum);
 #endif	// _WIN32
 }
+
+template<enum_mio_mode Emode>
+size_t mio<Emode>::seek_file(enum_mio_pos pos, size_t offset)
+{
+	if (!is_open())
+	{
+		return -1;
+	}
+
+#ifdef _WIN32
+	LARGE_INTEGER off;
+	off.QuadPart = offset;
+	LARGE_INTEGER newoff;
+	DWORD move;
+	switch (pos)
+	{
+	case enum_pos_set: move = FILE_BEGIN; break;
+	case enum_pos_cur: move = FILE_CURRENT; break;
+	case enum_pos_end: move = FILE_END; break;
+	default: move = FILE_CURRENT; break;
+	}
+	if (SetFilePointerEx(p_file, off, &newoff, move) == FALSE)
+	{
+		return -1;
+	}
+	return static_cast<size_t>(newoff.QuadPart);
+#else
+	int move;
+	switch (pos)
+	{
+	case enum_pos_set: move = SEEK_SET; break;
+	case enum_pos_cur: move = SEEK_CUR; break;
+	case enum_pos_end: move = SEEK_END; break;
+	default: move = SEEK_CUR; break;
+	}
+	off_t newoff = lseek(p_file, offset, move);
+	return static_cast<size_t>(newoff);
+#endif	// _WIN32
+}
+
 
 NAMESPACE_END
 
