@@ -35,14 +35,15 @@ int main()
 // 	miofile.close_file();
 
 #ifdef _WIN32
-	miofile.open_file("e:\\test.txt",mio::enum_mode_read);
+	miofile.open_file("e:\\test.txt", mio::enum_mode_read);
 #else
-	miofile.open_file("test.txt");
+	miofile.open_file("test.txt", mio::enum_mode_read);
 #endif
-	printf("%lu\n",miofile.seek_file(mio::enum_pos_end, -2));
+	printf("size %lu\n",miofile.file_size());
+	printf("pos %lu\n",miofile.seek_file(mio::enum_pos_end, -2));
 	char buf;
 	miofile.read_file(&buf, 1);
 	miofile.close_file();
 
-	printf("%c\n", buf);
+	printf("'%c' 0x%02x\n", buf, buf);
 }
