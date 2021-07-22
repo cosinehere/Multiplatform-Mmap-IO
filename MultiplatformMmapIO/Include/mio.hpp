@@ -32,6 +32,7 @@ typedef unsigned __int64 uint64_t;
 #define WIN32_LEAN_AND_MEAN
 #endif	// WIN32_LEAN_AND_MEAN
 #include <windows.h>
+typedef SSIZE_T ssize_t;
 #endif	// _AFX
 #else	// Unix
 #include <unistd.h>
@@ -122,7 +123,7 @@ public:
 	size_t read_file(void* buffer, size_t readnum);
 	size_t write_file(const void* buffer, size_t writenum);
 
-	size_t seek_file(enum_mio_pos pos, size_t offset);
+	size_t seek_file(enum_mio_pos pos, ssize_t offset);
 };
 
 template<enum_mio_mode Emode>
@@ -286,7 +287,7 @@ size_t mio<Emode>::write_file(const void* buffer, size_t writenum)
 }
 
 template<enum_mio_mode Emode>
-size_t mio<Emode>::seek_file(enum_mio_pos pos, size_t offset)
+size_t mio<Emode>::seek_file(enum_mio_pos pos, ssize_t offset)
 {
 	if (!is_open())
 	{

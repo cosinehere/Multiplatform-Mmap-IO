@@ -39,7 +39,7 @@ int main()
 #else
 	miofile.open_file("test.txt");
 #endif
-	miofile.seek_file(mio::enum_pos_set, 1);
+	printf("%lu\n",miofile.seek_file(mio::enum_pos_end, -2));
 	char buf;
 	miofile.read_file(&buf, 1);
 	miofile.close_file();
