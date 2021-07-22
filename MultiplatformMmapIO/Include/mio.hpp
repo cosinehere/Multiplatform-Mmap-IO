@@ -94,11 +94,11 @@ enum enum_mio_pos {
 	enum_pos_end
 };
 
-template<enum_mio_mode Emode>
 class mio
 {
 private:
 	HMIO p_file;
+	enum_mio_mode p_mode;
 
 	bool path_empty(const char* path) { return !path || (*path == '\0'); }
 
@@ -114,8 +114,8 @@ public:
 
 	bool is_open() noexcept { return p_file != invalid_handle; }
 
-	bool create_file(const char* path);
-	bool open_file(const char* path);
+	bool create_file(const char* path, enum_mio_mode mode);
+	bool open_file(const char* path, enum_mio_mode mode);
 	void close_file();
 
 	size_t file_size();
@@ -126,14 +126,12 @@ public:
 	size_t seek_file(enum_mio_pos pos, ssize_t offset);
 };
 
-template<enum_mio_mode Emode>
-mio<Emode>::mio()
+mio::mio()
 {
 	p_file = invalid_handle;
 }
 
-template<enum_mio_mode Emode>
-mio<Emode>::~mio()
+mio::~mio()
 {
 	if (is_open())
 	{
@@ -141,8 +139,7 @@ mio<Emode>::~mio()
 	}
 }
 
-template<enum_mio_mode Emode>
-bool mio<Emode>::create_file(const char* path)
+bool mio::create_file(const char* path, enum_mio_mode mode)
 {
 	if (path_empty(path))
 	{
@@ -152,7 +149,7 @@ bool mio<Emode>::create_file(const char* path)
 	HMIO handle = invalid_handle;
 #ifdef _WIN32
 	handle = CreateFile(path,
-		(Emode == enum_mode_read) ? GENERIC_READ : GENERIC_READ | GENERIC_WRITE,
+		(mode == enum_mode_read) ? GENERIC_READ : GENERIC_READ | GENERIC_WRITE,
 		FILE_SHARE_READ | FILE_SHARE_WRITE,
 		0,
 		CREATE_ALWAYS,
@@ -160,16 +157,16 @@ bool mio<Emode>::create_file(const char* path)
 		0);
 #else
 	handle = open(path,
-		(Emode == enum_mode_read) ? O_RDONLY | O_CREAT : O_RDWR | O_CREAT,
+		(mode == enum_mode_read) ? O_RDONLY | O_CREAT : O_RDWR | O_CREAT,
 		S_IRUSR | S_IWUSR);
 #endif	// _WIN32
 
 	p_file = handle;
+	p_mode = mode;
 	return handle != invalid_handle;
 }
 
-template<enum_mio_mode Emode>
-bool mio<Emode>::open_file(const char* path)
+bool mio::open_file(const char* path, enum_mio_mode mode)
 {
 	if (path_empty(path))
 	{
@@ -179,7 +176,7 @@ bool mio<Emode>::open_file(const char* path)
 	HMIO handle = invalid_handle;
 #ifdef _WIN32
 	handle = CreateFile(path,
-		(Emode == enum_mode_read) ? GENERIC_READ : GENERIC_READ | GENERIC_WRITE,
+		(mode == enum_mode_read) ? GENERIC_READ : GENERIC_READ | GENERIC_WRITE,
 		FILE_SHARE_READ | FILE_SHARE_WRITE,
 		0,
 		OPEN_EXISTING,
@@ -187,15 +184,15 @@ bool mio<Emode>::open_file(const char* path)
 		0);
 #else
 	handle = open(path,
-		(Emode == enum_mode_read) ? O_RDONLY : O_RDWR);
+		(mode == enum_mode_read) ? O_RDONLY : O_RDWR);
 #endif	// _WIN32
 
 	p_file = handle;
+	p_mode = mode;
 	return handle != invalid_handle;
 }
 
-template<enum_mio_mode Emode>
-void mio<Emode>::close_file()
+void mio::close_file()
 {
 	if (!is_open())
 	{
@@ -211,8 +208,7 @@ void mio<Emode>::close_file()
 	p_file = invalid_handle;
 }
 
-template<enum_mio_mode Emode>
-size_t mio<Emode>::file_size()
+size_t mio::file_size()
 {
 	if (!is_open())
 	{
@@ -236,15 +232,14 @@ size_t mio<Emode>::file_size()
 #endif
 }
 
-template<enum_mio_mode Emode>
-size_t mio<Emode>::read_file(void* buffer, size_t readnum)
+size_t mio::read_file(void* buffer, size_t readnum)
 {
 	if (!is_open())
 	{
 		return 0;
 	}
 
-	if (Emode != enum_mode_read)
+	if (p_mode != enum_mode_read)
 	{
 		return 0;
 	}
@@ -261,15 +256,14 @@ size_t mio<Emode>::read_file(void* buffer, size_t readnum)
 #endif	// _WIN32
 }
 
-template<enum_mio_mode Emode>
-size_t mio<Emode>::write_file(const void* buffer, size_t writenum)
+size_t mio::write_file(const void* buffer, size_t writenum)
 {
 	if (!is_open())
 	{
 		return 0;
 	}
 
-	if (Emode != enum_mode_write)
+	if (p_mode != enum_mode_write)
 	{
 		return 0;
 	}
@@ -286,8 +280,7 @@ size_t mio<Emode>::write_file(const void* buffer, size_t writenum)
 #endif	// _WIN32
 }
 
-template<enum_mio_mode Emode>
-size_t mio<Emode>::seek_file(enum_mio_pos pos, ssize_t offset)
+size_t mio::seek_file(enum_mio_pos pos, ssize_t offset)
 {
 	if (!is_open())
 	{

@@ -5,7 +5,7 @@
 
 mmapio::mmapio<mmapio::enum_mode_write> io;
 
-mio::mio<mio::enum_mode_read> miofile;
+mio::mio miofile;
 
 int main()
 {
@@ -35,7 +35,7 @@ int main()
 // 	miofile.close_file();
 
 #ifdef _WIN32
-	miofile.open_file("e:\\test.txt");
+	miofile.open_file("e:\\test.txt",mio::enum_mode_read);
 #else
 	miofile.open_file("test.txt");
 #endif
