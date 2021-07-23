@@ -128,12 +128,12 @@ public:
 	bool file_flush();
 };
 
-mio::mio()
+inline mio::mio()
 {
 	p_file = invalid_handle;
 }
 
-mio::~mio()
+inline mio::~mio()
 {
 	if (is_open())
 	{
@@ -141,7 +141,7 @@ mio::~mio()
 	}
 }
 
-bool mio::create_file(const char* path, enum_mio_mode mode)
+inline bool mio::create_file(const char* path, enum_mio_mode mode)
 {
 	if (path_empty(path))
 	{
@@ -168,7 +168,7 @@ bool mio::create_file(const char* path, enum_mio_mode mode)
 	return handle != invalid_handle;
 }
 
-bool mio::open_file(const char* path, enum_mio_mode mode)
+inline bool mio::open_file(const char* path, enum_mio_mode mode)
 {
 	if (path_empty(path))
 	{
@@ -194,7 +194,7 @@ bool mio::open_file(const char* path, enum_mio_mode mode)
 	return handle != invalid_handle;
 }
 
-void mio::close_file()
+inline void mio::close_file()
 {
 	if (!is_open())
 	{
@@ -210,7 +210,7 @@ void mio::close_file()
 	p_file = invalid_handle;
 }
 
-size_t mio::file_size()
+inline size_t mio::file_size()
 {
 	if (!is_open())
 	{
@@ -234,7 +234,7 @@ size_t mio::file_size()
 #endif
 }
 
-size_t mio::read_file(void* buffer, size_t readnum)
+inline size_t mio::read_file(void* buffer, size_t readnum)
 {
 	if (!is_open())
 	{
@@ -258,7 +258,7 @@ size_t mio::read_file(void* buffer, size_t readnum)
 #endif	// _WIN32
 }
 
-size_t mio::write_file(const void* buffer, size_t writenum)
+inline size_t mio::write_file(const void* buffer, size_t writenum)
 {
 	if (!is_open())
 	{
@@ -282,7 +282,7 @@ size_t mio::write_file(const void* buffer, size_t writenum)
 #endif	// _WIN32
 }
 
-size_t mio::seek_file(enum_mio_pos pos, ssize_t offset)
+inline size_t mio::seek_file(enum_mio_pos pos, ssize_t offset)
 {
 	if (!is_open())
 	{
