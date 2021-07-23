@@ -124,6 +124,8 @@ public:
 	size_t write_file(const void* buffer, size_t writenum);
 
 	size_t seek_file(enum_mio_pos pos, ssize_t offset);
+
+	bool file_flush();
 };
 
 mio::mio()
@@ -318,6 +320,19 @@ size_t mio::seek_file(enum_mio_pos pos, ssize_t offset)
 #endif	// _WIN32
 }
 
+inline bool mio::file_flush()
+{
+	if (!is_open() || p_mode != enum_mode_write)
+	{
+		return false;
+	}
+
+#ifdef _WIN32
+	return (FlushFileBuffers(p_file) == TRUE);
+#else
+	return (fsync(p_file) == 0);
+#endif
+}
 
 NAMESPACE_END
 
