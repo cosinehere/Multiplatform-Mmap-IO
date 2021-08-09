@@ -32,8 +32,8 @@ typedef unsigned __int64 uint64_t;
 #define WIN32_LEAN_AND_MEAN
 #endif  // WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <sys/types.h>
 #endif  // _AFX
+#include <sys/types.h>
 #else   // Unix
 #include <unistd.h>
 #include <sys/stat.h>
