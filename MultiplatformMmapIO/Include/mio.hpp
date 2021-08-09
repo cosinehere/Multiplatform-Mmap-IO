@@ -156,7 +156,7 @@ inline bool mio::open_file(const char* path, enum_mio_mode mode) {
         FILE_ATTRIBUTE_NORMAL, 0);
 #else
     handle = open(path, (mode == enum_mode_read) ? O_RDONLY : O_RDWR);
-#endif  // _WIN32
+#endif  // _MIO_WIN
 
     p_file = handle;
     p_mode = mode;
