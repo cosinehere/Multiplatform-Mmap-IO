@@ -244,7 +244,6 @@ inline off_t mio::seek_file(enum_mio_pos pos, off_t offset) {
     }
 
 #ifdef _MIO_WIN
-    LONG newoff;
     DWORD move;
     switch (pos) {
         case enum_pos_set:
@@ -260,11 +259,9 @@ inline off_t mio::seek_file(enum_mio_pos pos, off_t offset) {
             move = FILE_CURRENT;
             break;
     }
-    if (SetFilePointer(p_file, offset, &newoff, move) == FALSE) {
-        return -1;
-    }
+    DWORD newoff = SetFilePointer(p_file, offset, nullptr, move);
 
-    return static_cast<size_t>(newoff);
+    return static_cast<off_t>(newoff);
 #else
     int move;
     switch (pos) {
