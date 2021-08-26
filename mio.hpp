@@ -75,7 +75,7 @@ typedef int HMIO;
 #endif  // _WIN32
 
 // read/write mode
-enum enum_mio_mode { enum_mode_read = 0, enum_mode_write };
+enum enum_mio_mode { enum_mode_read = 0, enum_mode_rdwr };
 
 enum enum_mio_pos { enum_pos_set = 0, enum_pos_cur, enum_pos_end };
 
@@ -203,10 +203,6 @@ inline size_t mio::read_file(void* buffer, size_t readnum) {
         return 0;
     }
 
-    if (p_mode != enum_mode_read) {
-        return 0;
-    }
-
 #ifdef _MIO_WIN
     DWORD dwRead = 0;
     if (!ReadFile(p_file, buffer, readnum, &dwRead, nullptr)) {
@@ -223,7 +219,7 @@ inline size_t mio::write_file(const void* buffer, size_t writenum) {
         return 0;
     }
 
-    if (p_mode != enum_mode_write) {
+    if (p_mode == enum_mode_read) {
         return 0;
     }
 
@@ -284,7 +280,7 @@ inline off_t mio::seek_file(enum_mio_pos pos, off_t offset) {
 }
 
 inline bool mio::file_flush() {
-    if (!is_open() || p_mode != enum_mode_write) {
+    if (!is_open() || p_mode == enum_mode_read) {
         return false;
     }
 
