@@ -1,9 +1,6 @@
 ﻿#include <iostream>
 
-#include "../Include/mio.hpp"
-#include "../Include/mmapio.hpp"
-
-mmapio::mmapio<mmapio::enum_mode_write> io;
+#include "mio.hpp"
 
 mio::mio miofile;
 
@@ -34,7 +31,7 @@ int main()
 // 	miofile.write_file("123", 3);
 // 	miofile.close_file();
 
-#ifdef _WIN32
+#ifdef WIN32
 	miofile.open_file("e:\\test.txt", mio::enum_mode_read);
 #else
 	miofile.open_file("test.txt", mio::enum_mode_read);
