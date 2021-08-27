@@ -45,9 +45,12 @@ int main()
     miofile.write_file("123456789", 9);
     miofile.seek_file(mio::enum_pos_set, 3);
     miofile.write_file("000", 3);
-    uint8_t ch;
-    miofile.read_file(&ch, 1);
-    printf("%c\n", ch);
+    miofile.seek_file(mio::enum_pos_end, -1);
+    miofile.write_file("1", 1);
+    miofile.seek_file(mio::enum_pos_set, 0);
+    uint8_t ch[10] = { 0 };
+    miofile.read_file(&ch, 9);
+    printf("%s\n", ch);
     miofile.close_file();
 
     getchar();
