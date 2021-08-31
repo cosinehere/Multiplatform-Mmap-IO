@@ -1,6 +1,6 @@
 /**
  * @file mio.hpp
- * @author cosine (cosine@gmail.com)
+ * @author cosine (cosinehit@gmail.com)
  * @brief multiplatform I/O class
  * @version 0.1
  *
@@ -114,7 +114,11 @@ public:
      * @brief Destroy the mio object
      *
      */
-    ~mio() noexcept { if (is_open()) { close_file(); } }
+    ~mio() noexcept {
+        if (is_open()) {
+            close_file();
+        }
+    }
 
     /**
      * @brief file is open or not
@@ -153,15 +157,17 @@ inline bool mio::create_file(const char *path, enum_mio_mode mode) {
 
     HMIO handle = invalid_handle;
 #ifdef _MIO_WIN
-    handle = CreateFile(path,
-                        (mode == enum_mode_read) ? GENERIC_READ
-                                                 : (GENERIC_READ | GENERIC_WRITE),
-                        (FILE_SHARE_READ | FILE_SHARE_WRITE), 0, CREATE_ALWAYS,
-                        FILE_ATTRIBUTE_NORMAL, 0);
+    handle =
+        CreateFile(path,
+                   (mode == enum_mode_read) ? GENERIC_READ
+                                            : (GENERIC_READ | GENERIC_WRITE),
+                   (FILE_SHARE_READ | FILE_SHARE_WRITE), 0, CREATE_ALWAYS,
+                   FILE_ATTRIBUTE_NORMAL, 0);
 #else
-    handle = open(
-        path, (mode == enum_mode_read) ? (O_RDONLY | O_CREAT) : (O_RDWR | O_CREAT),
-        (S_IRUSR | S_IWUSR));
+    handle = open(path,
+                  (mode == enum_mode_read) ? (O_RDONLY | O_CREAT)
+                                           : (O_RDWR | O_CREAT),
+                  (S_IRUSR | S_IWUSR));
 #endif // _MIO_WIN
 
     p_file = handle;
@@ -171,7 +177,7 @@ inline bool mio::create_file(const char *path, enum_mio_mode mode) {
 
 /**
  * @brief open existing file
- * 
+ *
  * @param path full path of file
  * @param mode file mode
  * @return true success
@@ -184,11 +190,12 @@ inline bool mio::open_file(const char *path, enum_mio_mode mode) {
 
     HMIO handle = invalid_handle;
 #ifdef _MIO_WIN
-    handle = CreateFile(path,
-                        (mode == enum_mode_read) ? GENERIC_READ
-                                                 : (GENERIC_READ | GENERIC_WRITE),
-                        (FILE_SHARE_READ | FILE_SHARE_WRITE), 0, OPEN_EXISTING,
-                        FILE_ATTRIBUTE_NORMAL, 0);
+    handle =
+        CreateFile(path,
+                   (mode == enum_mode_read) ? GENERIC_READ
+                                            : (GENERIC_READ | GENERIC_WRITE),
+                   (FILE_SHARE_READ | FILE_SHARE_WRITE), 0, OPEN_EXISTING,
+                   FILE_ATTRIBUTE_NORMAL, 0);
 #else
     handle = open(path, (mode == enum_mode_read) ? O_RDONLY : O_RDWR);
 #endif // _MIO_WIN
@@ -200,7 +207,7 @@ inline bool mio::open_file(const char *path, enum_mio_mode mode) {
 
 /**
  * @brief close file
- * 
+ *
  */
 inline void mio::close_file() {
     if (!is_open()) {
@@ -218,7 +225,7 @@ inline void mio::close_file() {
 
 /**
  * @brief get file size
- * 
+ *
  * @return size_t file size on hardware
  */
 inline size_t mio::file_size() {
@@ -243,7 +250,7 @@ inline size_t mio::file_size() {
 
 /**
  * @brief read file
- * 
+ *
  * @param buffer content buffer
  * @param readnum desired read bytes
  * @return size_t actual read bytes
@@ -266,7 +273,7 @@ inline size_t mio::read_file(void *buffer, size_t readnum) {
 
 /**
  * @brief write file
- * 
+ *
  * @param buffer content buffer
  * @param writenum desired writing bytes
  * @return size_t actual written bytes
@@ -293,7 +300,7 @@ inline size_t mio::write_file(const void *buffer, size_t writenum) {
 
 /**
  * @brief seek file
- * 
+ *
  * @param pos seek file base point
  * @param offset offset to the base point
  * @return off_t new offset to the beginning of file
@@ -335,7 +342,7 @@ inline off_t mio::seek_file(enum_mio_pos pos, off_t offset) {
 
 /**
  * @brief flush file
- * 
+ *
  * @return true success
  * @return false fail
  */
