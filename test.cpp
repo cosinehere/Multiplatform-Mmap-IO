@@ -1,8 +1,10 @@
 ﻿#include <iostream>
 
 #include "mio.hpp"
+#include "mmapio.hpp"
 
 mio::mio miofile;
+mmapio::mmapio<mmapio::enum_mode_read> mmiofile;
 
 int main()
 {
@@ -52,6 +54,15 @@ int main()
     miofile.read_file(&ch, 9);
     printf("%s\n", ch);
     miofile.close_file();
+    
 
-    getchar();
+    mmiofile.map("test.txt", 0, 256);
+    const uint8_t *data = mmiofile.data();
+    for (uint64_t i = 0; i < mmiofile.size(); ++i) {
+        printf("%c", data[i]);
+    }
+    printf("\n");
+    mmiofile.unmap();
+
+    //getchar();
 }
