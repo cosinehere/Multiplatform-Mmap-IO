@@ -454,3 +454,6 @@ build
 # clangd
 .clangd
 
+# vscode
+.vscode
+
