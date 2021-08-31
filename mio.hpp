@@ -1,3 +1,12 @@
+/**
+ * @file mio.hpp
+ * @author cosine (cosine@gmail.com)
+ * @brief multiplatform I/O class
+ * @version 0.1
+ *
+ * @copyright Copyright (c) 2021
+ *
+ */
 #pragma once
 
 #ifndef _MIO_HPP_
@@ -23,9 +32,6 @@ typedef unsigned __int64 uint64_t;
 #include <cstdint>
 #endif // _MSC_VER
 
-//////////////////////////////////////////////////////////////////////////
-// system header
-//////////////////////////////////////////////////////////////////////////
 #if defined(_WIN32) || defined(WIN32) || defined(_WIN64) // Windows
 #ifndef _AFX                                             // without MFC
 #ifndef WIN32_LEAN_AND_MEAN
@@ -40,9 +46,6 @@ typedef unsigned __int64 uint64_t;
 #include <fcntl.h>
 #endif // _WIN32
 
-//////////////////////////////////////////////////////////////////////////
-// C++11 support
-//////////////////////////////////////////////////////////////////////////
 #if __cplusplus <= 199711L && (!defined(_MSC_VER) || _MSC_VER < 1900) &&       \
     (!defined(__GNUC__) ||                                                     \
      (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__ < 40603))
@@ -60,9 +63,6 @@ typedef unsigned __int64 uint64_t;
 
 namespace mio {
 
-//////////////////////////////////////////////////////////////////////////
-// mio typedef
-//////////////////////////////////////////////////////////////////////////
 #if defined(_WIN32) || defined(WIN32) || defined(_WIN64) // Windows
 typedef HANDLE HMIO;
 #ifndef invalid_handle
@@ -74,28 +74,54 @@ typedef HANDLE HMIO;
 typedef int HMIO;
 #endif // _WIN32
 
-// read/write mode
+/**
+ * @brief I/O mode
+ *
+ */
 enum enum_mio_mode { enum_mode_read = 0, enum_mode_rdwr };
 
+/**
+ * @brief seek base point
+ *
+ */
 enum enum_mio_pos { enum_pos_set = 0, enum_pos_cur, enum_pos_end };
 
 class mio {
 private:
-    HMIO p_file;
-    enum_mio_mode p_mode;
+    HMIO p_file;          //!< file discriptor
+    enum_mio_mode p_mode; //!< I/O mode
 
-    bool path_empty(const char *path) { return !path || (*path == '\0'); }
+    bool path_empty(const char *path) { return !path || !(*path); }
 
-public:
-    mio();
-    ~mio();
 #ifndef CXX11_NOT_SUPPORT
     mio(const mio &) = delete;
     mio(const mio &&) = delete;
     mio &operator=(const mio &) = delete;
     mio &operator=(const mio &&) = delete;
+#else
+    mio(const mio &);
+    mio &operator=(const mio &);
 #endif // CXX11_NOT_SUPPORT
 
+public:
+    /**
+     * @brief Construct a new mio object
+     *
+     */
+    mio() noexcept { p_file = invalid_handle; }
+
+    /**
+     * @brief Destroy the mio object
+     *
+     */
+    ~mio() noexcept { if (is_open()) { close_file(); } }
+
+    /**
+     * @brief file is open or not
+     *
+     * @return true already opened
+     * @return false already closed or not opened
+     */
     bool is_open() noexcept { return p_file != invalid_handle; }
 
     bool create_file(const char *path, enum_mio_mode mode);
@@ -109,17 +135,17 @@ public:
 
     off_t seek_file(enum_mio_pos pos, off_t offset);
 
-    bool file_flush();
+    bool flush_file();
 };
 
-inline mio::mio() { p_file = invalid_handle; }
-
-inline mio::~mio() {
-    if (is_open()) {
-        close_file();
-    }
-}
-
+/**
+ * @brief create file
+ *
+ * @param path full path of file
+ * @param mode file mode
+ * @return true success
+ * @return false invalid path or create file failed
+ */
 inline bool mio::create_file(const char *path, enum_mio_mode mode) {
     if (path_empty(path)) {
         return false;
@@ -129,20 +155,28 @@ inline bool mio::create_file(const char *path, enum_mio_mode mode) {
 #ifdef _MIO_WIN
     handle = CreateFile(path,
                         (mode == enum_mode_read) ? GENERIC_READ
-                                                 : GENERIC_READ | GENERIC_WRITE,
-                        FILE_SHARE_READ | FILE_SHARE_WRITE, 0, CREATE_ALWAYS,
+                                                 : (GENERIC_READ | GENERIC_WRITE),
+                        (FILE_SHARE_READ | FILE_SHARE_WRITE), 0, CREATE_ALWAYS,
                         FILE_ATTRIBUTE_NORMAL, 0);
 #else
     handle = open(
-        path, (mode == enum_mode_read) ? O_RDONLY | O_CREAT : O_RDWR | O_CREAT,
-        S_IRUSR | S_IWUSR);
+        path, (mode == enum_mode_read) ? (O_RDONLY | O_CREAT) : (O_RDWR | O_CREAT),
+        (S_IRUSR | S_IWUSR));
 #endif // _MIO_WIN
 
     p_file = handle;
     p_mode = mode;
-    return handle != invalid_handle;
+    return (handle != invalid_handle);
 }
 
+/**
+ * @brief open existing file
+ * 
+ * @param path full path of file
+ * @param mode file mode
+ * @return true success
+ * @return false invalid path or open file failed
+ */
 inline bool mio::open_file(const char *path, enum_mio_mode mode) {
     if (path_empty(path)) {
         return false;
@@ -152,8 +186,8 @@ inline bool mio::open_file(const char *path, enum_mio_mode mode) {
 #ifdef _MIO_WIN
     handle = CreateFile(path,
                         (mode == enum_mode_read) ? GENERIC_READ
-                                                 : GENERIC_READ | GENERIC_WRITE,
-                        FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING,
+                                                 : (GENERIC_READ | GENERIC_WRITE),
+                        (FILE_SHARE_READ | FILE_SHARE_WRITE), 0, OPEN_EXISTING,
                         FILE_ATTRIBUTE_NORMAL, 0);
 #else
     handle = open(path, (mode == enum_mode_read) ? O_RDONLY : O_RDWR);
@@ -161,9 +195,13 @@ inline bool mio::open_file(const char *path, enum_mio_mode mode) {
 
     p_file = handle;
     p_mode = mode;
-    return handle != invalid_handle;
+    return (handle != invalid_handle);
 }
 
+/**
+ * @brief close file
+ * 
+ */
 inline void mio::close_file() {
     if (!is_open()) {
         return;
@@ -178,6 +216,11 @@ inline void mio::close_file() {
     p_file = invalid_handle;
 }
 
+/**
+ * @brief get file size
+ * 
+ * @return size_t file size on hardware
+ */
 inline size_t mio::file_size() {
     if (!is_open()) {
         return 0;
@@ -198,6 +241,13 @@ inline size_t mio::file_size() {
 #endif // _MIO_WIN
 }
 
+/**
+ * @brief read file
+ * 
+ * @param buffer content buffer
+ * @param readnum desired read bytes
+ * @return size_t actual read bytes
+ */
 inline size_t mio::read_file(void *buffer, size_t readnum) {
     if (!is_open()) {
         return 0;
@@ -214,6 +264,13 @@ inline size_t mio::read_file(void *buffer, size_t readnum) {
 #endif // _MIO_WIN
 }
 
+/**
+ * @brief write file
+ * 
+ * @param buffer content buffer
+ * @param writenum desired writing bytes
+ * @return size_t actual written bytes
+ */
 inline size_t mio::write_file(const void *buffer, size_t writenum) {
     if (!is_open()) {
         return 0;
@@ -234,6 +291,13 @@ inline size_t mio::write_file(const void *buffer, size_t writenum) {
 #endif // _MIO_WIN
 }
 
+/**
+ * @brief seek file
+ * 
+ * @param pos seek file base point
+ * @param offset offset to the base point
+ * @return off_t new offset to the beginning of file
+ */
 inline off_t mio::seek_file(enum_mio_pos pos, off_t offset) {
     if (!is_open()) {
         return -1;
@@ -241,45 +305,41 @@ inline off_t mio::seek_file(enum_mio_pos pos, off_t offset) {
 
 #ifdef _MIO_WIN
     DWORD move;
-    switch (pos) {
-    case enum_pos_set:
-        move = FILE_BEGIN;
-        break;
-    case enum_pos_cur:
-        move = FILE_CURRENT;
-        break;
-    case enum_pos_end:
-        move = FILE_END;
-        break;
-    default:
-        move = FILE_CURRENT;
-        break;
-    }
-    DWORD newoff = SetFilePointer(p_file, offset, nullptr, move);
-
-    return static_cast<off_t>(newoff);
 #else
     int move;
+#endif // _MIO_WIN
+
     switch (pos) {
     case enum_pos_set:
-        move = SEEK_SET;
+        move = 0;
         break;
     case enum_pos_cur:
-        move = SEEK_CUR;
+        move = 1;
         break;
     case enum_pos_end:
-        move = SEEK_END;
+        move = 2;
         break;
     default:
-        move = SEEK_CUR;
+        move = 1;
         break;
     }
+
+#ifdef _MIO_WIN
+    DWORD newoff = SetFilePointer(p_file, offset, nullptr, move);
+    return static_cast<off_t>(newoff);
+#else
     off_t newoff = lseek(p_file, offset, move);
     return newoff;
 #endif // _MIO_WIN
 }
 
-inline bool mio::file_flush() {
+/**
+ * @brief flush file
+ * 
+ * @return true success
+ * @return false fail
+ */
+inline bool mio::flush_file() {
     if (!is_open() || p_mode == enum_mode_read) {
         return false;
     }
