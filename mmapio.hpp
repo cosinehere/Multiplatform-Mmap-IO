@@ -1,3 +1,12 @@
+/**
+ * @file mmapio.hpp
+ * @author cosine (cosinehit@gmail.com)
+ * @brief multiplatform mmap I/O class
+ * @version 0.1
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
 #pragma once
 
 #ifndef _MMAPIO_HPP_
@@ -23,9 +32,6 @@ typedef unsigned __int64 uint64_t;
 #include <cstdint>
 #endif	// _MSC_VER
 
-//////////////////////////////////////////////////////////////////////////
-// system header
-//////////////////////////////////////////////////////////////////////////
 #ifdef _WIN32	// Windows
 #ifndef _AFX	// without MFC
 #ifndef WIN32_LEAN_AND_MEAN
@@ -40,9 +46,6 @@ typedef unsigned __int64 uint64_t;
 #include <fcntl.h>
 #endif	// _WIN32
 
-//////////////////////////////////////////////////////////////////////////
-// C++11 support
-//////////////////////////////////////////////////////////////////////////
 #if __cplusplus <= 199711L && \
 	(!defined(_MSC_VER) || _MSC_VER < 1900) && \
 	(!defined(__GNUC__) || \
@@ -59,24 +62,14 @@ typedef unsigned __int64 uint64_t;
 #define override
 #endif
 
-//////////////////////////////////////////////////////////////////////////
-// namespace define
-//////////////////////////////////////////////////////////////////////////
-#if !defined(NAMESPACE_BEGIN)  && !defined(NAMESPACE_END)
-#define NAMESPACE_BEGIN(name) namespace name {
-#define NAMESPACE_END }
-#endif	// !defined(NAMESPACE_BEGIN)  && !defined(NAMESPACE_END)
+namespace mmapio{
 
-NAMESPACE_BEGIN(mmapio)
-
-//////////////////////////////////////////////////////////////////////////
-// mmapio typedef
-//////////////////////////////////////////////////////////////////////////
-#ifdef _WIN32	// Windows
+#if defined(_WIN32) || defined(WIN32) || defined(_WIN64) // Windows
 typedef HANDLE HMMAPIO;
 #ifndef invalid_handle
 #define invalid_handle INVALID_HANDLE_VALUE
 #endif	// invalid_handle
+#define _MMIO_WIN
 #else	// Unix
 #define invalid_handle -1
 typedef int HMMAPIO;
@@ -375,6 +368,6 @@ bool mmapio<Emode>::memory_map(const HMMAPIO handle, const uint64_t offset, cons
 	return true;
 }
 
-NAMESPACE_END
+}
 
 #endif	// _MMAPIO_HPP_
