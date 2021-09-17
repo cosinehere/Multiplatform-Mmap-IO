@@ -15,6 +15,21 @@
 
 #include <cstdio>
 
+#if __cplusplus <= 199711L && (!defined(_MSC_VER) || _MSC_VER < 1900) &&       \
+    (!defined(__GNUC__) ||                                                     \
+     (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__ < 40603))
+#ifndef CXX11_NOT_SUPPORT
+#define CXX11_NOT_SUPPORT
+#endif // CXX11_NOT_SUPPORT
+#endif // __cplusplus<=199711L
+
+#ifdef CXX11_NOT_SUPPORT
+#define nullptr NULL
+#define constexpr const
+#define noexcept throw()
+#define override
+#endif // CXX11_NOT_SUPPORT
+
 namespace fio {
 
 enum enum_fio_mode { enum_mode_read = 0, enum_mode_rdwr };
