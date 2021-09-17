@@ -2,9 +2,12 @@
 
 #include "mio.hpp"
 #include "mmapio.hpp"
+#include "fio.hpp"
 
 mio::mio miofile;
 mmapio::mmapio<mmapio::enum_mode_read> mmiofile;
+
+fio::fio fiofile;
 
 int main()
 {
@@ -43,26 +46,26 @@ int main()
 //     printf("'%c' 0x%02x\n", buf, buf);
 
 
-    miofile.create_file("test.txt", mio::enum_mode_rdwr);
-    miofile.write_file("123456789", 9);
-    miofile.seek_file(mio::enum_pos_set, 3);
-    miofile.write_file("000", 3);
-    miofile.seek_file(mio::enum_pos_end, -1);
-    miofile.write_file("1", 1);
-    miofile.seek_file(mio::enum_pos_set, 0);
+    fiofile.create_file("test.txt");
+    fiofile.write_file("123456789", 9);
+    fiofile.seek_file(mio::enum_pos_set, 3);
+    fiofile.write_file("000", 3);
+    fiofile.seek_file(mio::enum_pos_end, -1);
+    fiofile.write_file("1", 1);
+    fiofile.seek_file(mio::enum_pos_set, 0);
     uint8_t ch[10] = { 0 };
-    miofile.read_file(&ch, 9);
+    fiofile.read_file(&ch, 9);
     printf("%s\n", ch);
-    miofile.close_file();
+    fiofile.close_file();
     
 
-    mmiofile.map("test.txt", 0, 256);
-    const uint8_t *data = mmiofile.data();
-    for (uint64_t i = 0; i < mmiofile.size(); ++i) {
-        printf("%c", data[i]);
-    }
-    printf("\n");
-    mmiofile.unmap();
+    //mmiofile.map("test.txt", 0, 256);
+    //const uint8_t *data = mmiofile.data();
+    //for (uint64_t i = 0; i < mmiofile.size(); ++i) {
+        //printf("%c", data[i]);
+    //}
+    //printf("\n");
+    //mmiofile.unmap();
 
     //getchar();
 }
